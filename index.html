@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>《受到召唤.敦煌》互动研究报告</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Dunhuang Echoes (Earthy tones, sandy neutrals, mineral blue accents) -->
+    <!-- Application Structure Plan: The SPA is structured as an interactive dashboard to explore the research framework. It moves from a general introduction (Hero Section) to specific, user-driven exploration. A tab-based navigation allows users to switch between two main pillars: "Sustainable Development Goals (SDGs)" and "Social Marketing Framework". This thematic, non-linear design is more engaging than a static report. For SDGs, interactive cards reveal specific questions per goal. For Social Marketing, a visual diagram clarifies the Upstream-Midstream-Downstream model. This structure makes the complex research framework digestible and intuitive. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: SDG-related questions. Goal: Organize/Inform. Method: Grid of interactive cards (HTML/JS). Interaction: Click to expand and see details. Justification: Prevents overwhelming users, encourages focused exploration of each SDG theme.
+        - Report Info: Social Marketing framework. Goal: Explain Structure. Method: A visual flow diagram (HTML/Tailwind CSS). Interaction: Hover/click highlights a stage and reveals its questions. Justification: Visually represents the theoretical model, making it easier to understand than plain text.
+        - Report Info: Overall impact across themes. Goal: Synthesize. Method: Radar Chart. Interaction: Static visualization with tooltips. Justification: Provides a high-level, "at-a-glance" summary of the musical's potential impact across all SDG dimensions discussed in the research. Library: Chart.js.
+        - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: #FDFBF5;
+            color: #3D4451;
+        }
+        .dunhuang-sand { background-color: #EAE3D8; }
+        .dunhuang-blue { color: #3A5F7D; }
+        .dunhuang-dark-blue { color: #2C485E; }
+        .btn-active { background-color: #3A5F7D; color: #FFFFFF; }
+        .btn-inactive { background-color: #EAE3D8; color: #3D4451; }
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2C485E;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .section-intro {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto 2.5rem auto;
+            color: #5A6372;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+        .details-panel {
+            display: none;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            background-color: #F8F6F2;
+            border-left: 4px solid #3A5F7D;
+            border-radius: 0 8px 8px 0;
+        }
+        .details-panel ul {
+            list-style-type: '— ';
+            padding-left: 1.5rem;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 450px;
+        }
+        @media (min-width: 768px) {
+            .chart-container { height: 450px; }
+        }
+        .interview-invite-box {
+            background-color: #F8F6F2;
+            border: 2px dashed #3A5F7D;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            max-width: 600px;
+            margin: 2rem auto;
+        }
+        .interview-invite-box h3 {
+            color: #2C485E;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        .interview-invite-box p {
+            color: #3D4451;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+        .interview-invite-box .platform-icons span {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background-color: #EAE3D8;
+            color: #3A5F7D;
+            border-radius: 6px;
+            font-weight: 500;
+            margin: 0.5rem;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Header -->
+    <header class="text-center py-16 px-4 bg-white shadow-md">
+        <h1 class="text-4xl md:text-5xl font-bold dunhuang-dark-blue mb-4">《受到召唤.敦煌》</h1>
+        <p class="text-xl md:text-2xl text-gray-600">一项关于文化、科技与社会影响的互动研究</p>
+    </header>
+
+    <main class="container mx-auto px-4 py-12">
+
+        <!-- Navigation Tabs -->
+        <nav class="flex justify-center mb-12 border-b-2 border-gray-200">
+            <button data-tab="sdg" class="nav-btn btn-active text-lg font-semibold py-3 px-8 rounded-t-lg transition-colors duration-300">可持续发展目标 (SDGs)</button>
+            <button data-tab="marketing" class="nav-btn btn-inactive text-lg font-semibold py-3 px-8 rounded-t-lg transition-colors duration-300">社会营销视角</button>
+        </nav>
+
+        <!-- Content Area -->
+        <div id="content-area">
+
+            <!-- SDG Section -->
+            <section id="sdg-content" class="tab-content">
+                <h2 class="section-title">音乐剧与联合国可持续发展目标</h2>
+                <p class="section-intro">本部分探讨音乐剧《受到召唤.敦煌》如何与多个联合国可持续发展目标（SDGs）产生共鸣。点击下方的卡片，可以查看与每个目标相关的具体研究议题和问题，从而了解该剧在推动教育、经济、创新等方面的潜力。</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- SDG Card -->
+                    <div class="sdg-card bg-white p-6 rounded-lg shadow hover:shadow-xl transition-shadow cursor-pointer" data-detail="sdg4">
+                        <h3 class="font-bold text-xl mb-2 dunhuang-blue">SDG 4: 优质教育</h3>
+                        <p class="text-gray-600">探索艺术的教育功能与知识普及。</p>
+                    </div>
+                    <div id="sdg4-detail" class="details-panel md:col-span-2 lg:col-span-3">
+                        <h4 class="font-bold text-lg mb-2">核心问题:</h4>
+                        <ul>
+                            <li>你会向亲朋好友（尤其是年轻人）推荐这部剧吗？你会如何介绍其教育意义？</li>
+                            <li>这种“科技+文化”的艺术形式未来能否成为常态化的文化教育工具？需要哪些条件？</li>
+                            <li>看完剧后，您会更关注文化遗产保护问题吗？普通观众能为此做出哪些贡献？</li>
+                            <li>该剧对激发公众对中华优秀传统文化的自豪感和传承意识起到了什么作用？</li>
+                        </ul>
+                    </div>
+
+                    <!-- SDG Card -->
+                    <div class="sdg-card bg-white p-6 rounded-lg shadow hover:shadow-xl transition-shadow cursor-pointer" data-detail="sdg8">
+                        <h3 class="font-bold text-xl mb-2 dunhuang-blue">SDG 8: 体面劳动与经济增长</h3>
+                        <p class="text-gray-600">分析文化产业的经济贡献与就业促进。</p>
+                    </div>
+                    <div id="sdg8-detail" class="details-panel md:col-span-2 lg:col-span-3">
+                        <h4 class="font-bold text-lg mb-2">核心问题:</h4>
+                        <ul>
+                            <li>该剧的成功是否对相关产业（文创、旅游、技术等）产生了积极影响？</li>
+                            <li>大型文化项目在吸引人才、促进文化产业集群发展方面有何潜力？</li>
+                        </ul>
+                    </div>
+                     <!-- SDG Card -->
+                    <div class="sdg-card bg-white p-6 rounded-lg shadow hover:shadow-xl transition-shadow cursor-pointer" data-detail="sdg9">
+                        <h3 class="font-bold text-xl mb-2 dunhuang-blue">SDG 9: 产业、创新和基础设施</h3>
+                        <p class="text-gray-600">审视科技与艺术融合催生的新质生产力。</p>
+                    </div>
+                    <div id="sdg9-detail" class="details-panel md:col-span-2 lg:col-span-3">
+                         <h4 class="font-bold text-lg mb-2">核心问题:</h4>
+                        <ul>
+                             <li>你对剧中的科技艺术呈现感兴趣吗？哪些科技应用印象最深？</li>
+                             <li>这些技术是否有效提升了您对中国传统文化的欣赏和理解？</li>
+                             <li>您如何评价该剧的制作水平，它能否成为文化领域新质生产力的典范？</li>
+                        </ul>
+                    </div>
+                     <!-- More cards... -->
+                    <div class="sdg-card bg-white p-6 rounded-lg shadow hover:shadow-xl transition-shadow cursor-pointer" data-detail="sdg11">
+                        <h3 class="font-bold text-xl mb-2 dunhuang-blue">SDG 11: 可持续城市和社区</h3>
+                        <p class="text-gray-600">关注文化遗产保护与社区认同。</p>
+                    </div>
+                     <div id="sdg11-detail" class="details-panel md:col-span-2 lg:col-span-3">
+                        <h4 class="font-bold text-lg mb-2">核心问题:</h4>
+                        <ul>
+                             <li>看完剧后，您对敦煌莫高窟保护的地位和重要性有无更深理解？</li>
+                             <li>艺术作品在提高公众文化遗产保护意识方面起到什么作用？</li>
+                        </ul>
+                    </div>
+                    <div class="sdg-card bg-white p-6 rounded-lg shadow hover:shadow-xl transition-shadow cursor-pointer" data-detail="sdg12">
+                        <h3 class="font-bold text-xl mb-2 dunhuang-blue">SDG 12: 负责任的消费和生产</h3>
+                        <p class="text-gray-600">探讨负责任的文化消费与可持续发展。</p>
+                    </div>
+                     <div id="sdg12-detail" class="details-panel md:col-span-2 lg:col-span-3">
+                        <h4 class="font-bold text-lg mb-2">核心问题:</h4>
+                        <ul>
+                            <li>“科技+艺术”的方式能否帮助更有效地“永久保存和可持续利用”文化遗产？</li>
+                            <li>这部音乐剧是否引发了您对保护或传承文化遗产重要性的思考？</li>
+                        </ul>
+                    </div>
+                    <div class="sdg-card bg-white p-6 rounded-lg shadow hover:shadow-xl transition-shadow cursor-pointer" data-detail="sdg16">
+                        <h3 class="font-bold text-xl mb-2 dunhuang-blue">SDG 16: 和平、正义与强大机构</h3>
+                        <p class="text-gray-600">体现文化治理与制度优势。</p>
+                    </div>
+                    <div id="sdg16-detail" class="details-panel md:col-span-2 lg:col-span-3">
+                        <h4 class="font-bold text-lg mb-2">核心问题:</h4>
+                        <ul>
+                            <li>国家级文化机构在推动文化传承创新方面发挥了哪些作用？</li>
+                            <li>文化艺术作品能否促进社会对文化遗产保护法律和政策的理解与支持？</li>
+                            <li>剧中展现的文化工作者的坚守是否让您感受到“强大机构”的力量？</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="mt-20">
+                    <h2 class="section-title">线上访谈邀请</h2>
+                     <div class="interview-invite-box">
+                        <h3>诚邀您参与线上访谈</h3>
+                        <p>为更深入地探讨《受到召唤.敦煌》的文化价值与社会影响，我们特别安排了一场线上访谈活动。</p>
+                        <p><strong>日期：</strong>6月9日 (星期一)</p>
+                        <p><strong>时间：</strong>下午 2:00 (北京时间)</p>
+                        <p><strong>会议平台：</strong></p>
+                        <div class="platform-icons">
+                            <span>腾讯会议/WeChat</span>
+                        </div>
+                        <p class="mt-4">届时将提供会议链接，期待您的参与和宝贵见解！</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Social Marketing Section -->
+            <section id="marketing-content" class="tab-content" style="display: none;">
+                <h2 class="section-title">社会营销的“上-中-下游”视角</h2>
+                <p class="section-intro">社会营销理论为我们分析文化项目的社会影响力提供了有力工具。该理论将社会变革的参与者分为三个层面：上游（政策制定者）、中游（社区与组织）和下游（个人）。点击下方各层级，探索该剧如何作用于不同社会层面，以促进文化遗产保护。</p>
+                <div class="space-y-8 max-w-4xl mx-auto">
+                    <!-- Upstream -->
+                    <div class="marketing-level bg-white p-6 rounded-lg shadow hover:shadow-xl transition-shadow cursor-pointer" data-detail="upstream">
+                        <h3 class="font-bold text-2xl mb-2 dunhuang-blue text-center">▲ 上游：政策与决策层</h3>
+                        <p class="text-center text-gray-600">关注国家级项目对政策制定者、政府机构的影响力。</p>
+                    </div>
+                    <div id="upstream-detail" class="details-panel">
+                        <h4 class="font-bold text-lg mb-2">核心问题:</h4>
+                        <ul>
+                            <li>国家级艺术项目能否有效吸引决策者投入更多政策支持或资源？</li>
+                            <li>剧中展现的敦煌文化保护历程能否为政府制定长期保护战略提供新视角？</li>
+                        </ul>
+                    </div>
+                    <!-- Midstream -->
+                    <div class="marketing-level bg-white p-6 rounded-lg shadow hover:shadow-xl transition-shadow cursor-pointer" data-detail="midstream">
+                         <h3 class="font-bold text-2xl mb-2 dunhuang-blue text-center">▬ 中游：社区与组织层</h3>
+                        <p class="text-center text-gray-600">聚焦音乐剧如何影响社区、社会团体及国际组织的文化参与。</p>
+                    </div>
+                    <div id="midstream-detail" class="details-panel">
+                        <h4 class="font-bold text-lg mb-2">核心问题:</h4>
+                        <ul>
+                            <li>该剧能否促进ICOMOS等社会团体间的合作，共同推动文化遗产保护？</li>
+                            <li>该剧的成功（如技术应用）如何在国际组织中产生影响，使其更关注当地文化遗产？</li>
+                        </ul>
+                    </div>
+                    <!-- Downstream -->
+                    <div class="marketing-level bg-white p-6 rounded-lg shadow hover:shadow-xl transition-shadow cursor-pointer" data-detail="downstream">
+                         <h3 class="font-bold text-2xl mb-2 dunhuang-blue text-center">▼ 下游：个人与公众层</h3>
+                        <p class="text-center text-gray-600">探究该剧是否能激发个人行为改变，从而支持文化保护。</p>
+                    </div>
+                    <div id="downstream-detail" class="details-panel">
+                        <h4 class="font-bold text-lg mb-2">核心问题:</h4>
+                        <ul>
+                            <li>哪些体验（内容、科技、情感等）促使您对文化遗产保护产生更强的认同感？</li>
+                            <li>观看后，这段经历是否激发了您在日常生活中采取具体行动（如参观、购买文创）？</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="text-center p-8 mt-12 dunhuang-sand">
+        <p class="text-sm text-gray-600">此互动报告基于《受到召唤.敦煌》访谈问卷内容制作，仅用于学术交流与展示。</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tab navigation
+            const navBtns = document.querySelectorAll('.nav-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            navBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    navBtns.forEach(b => {
+                        b.classList.remove('btn-active');
+                        b.classList.add('btn-inactive');
+                    });
+                    btn.classList.add('btn-active');
+                    btn.classList.remove('btn-inactive');
+
+                    tabContents.forEach(content => {
+                        content.style.display = 'none';
+                    });
+                    document.getElementById(btn.dataset.tab + '-content').style.display = 'block';
+                });
+            });
+
+            // Details panel toggle logic
+            function setupDetailToggle(cardClass, detailPrefix) {
+                const cards = document.querySelectorAll(`.${cardClass}`);
+                cards.forEach(card => {
+                    card.addEventListener('click', () => {
+                        const detailId = card.dataset.detail + detailPrefix;
+                        const detailPanel = document.getElementById(detailId);
+                        
+                        const isVisible = detailPanel.style.display === 'block';
+
+                        // Close all panels first for its group
+                        const parentGridOrSpace = card.closest('.grid, .space-y-8'); // Find the parent container for the group
+                        if (parentGridOrSpace) {
+                            parentGridOrSpace.querySelectorAll('.details-panel').forEach(p => {
+                                if (p.id !== detailId) { // Don't hide the one we might open
+                                     p.style.display = 'none';
+                                }
+                            });
+                        }
+
+
+                        // Toggle current panel
+                        if (!isVisible) {
+                            detailPanel.style.display = 'block';
+                        } else {
+                            detailPanel.style.display = 'none';
+                        }
+                    });
+                });
+            }
+
+            setupDetailToggle('sdg-card', '-detail');
+            setupDetailToggle('marketing-level', '-detail');
+
+            // Remove or comment out the Chart.js Radar Chart if it's no longer needed
+            // const ctx = document.getElementById('sdgRadarChart');
+            // if (ctx) {
+            //     new Chart(ctx.getContext('2d'), {
+            //         type: 'radar',
+            //         data: {
+            //             labels: [
+            //                 '优质教育 (SDG4)', 
+            //                 '经济增长 (SDG8)', 
+            //                 '产业创新 (SDG9)', 
+            //                 '可持续社区 (SDG11)', 
+            //                 '负责任消费 (SDG12)', 
+            //                 '强大机构 (SDG16)'
+            //             ],
+            //             datasets: [{
+            //                 label: '《受到召唤.敦煌》潜在影响力评估',
+            //                 data: [8, 7, 9, 7.5, 6.5, 8.5], // Example data
+            //                 fill: true,
+            //                 backgroundColor: 'rgba(58, 95, 125, 0.2)',
+            //                 borderColor: 'rgb(58, 95, 125)',
+            //                 pointBackgroundColor: 'rgb(58, 95, 125)',
+            //                 pointBorderColor: '#fff',
+            //                 pointHoverBackgroundColor: '#fff',
+            //                 pointHoverBorderColor: 'rgb(58, 95, 125)'
+            //             }]
+            //         },
+            //         options: {
+            //             maintainAspectRatio: false,
+            //             scales: {
+            //                 r: {
+            //                     angleLines: { color: 'rgba(0, 0, 0, 0.1)' },
+            //                     grid: { color: 'rgba(0, 0, 0, 0.1)' },
+            //                     pointLabels: {
+            //                         font: { size: 14, family: "'Noto Sans SC', sans-serif" },
+            //                         color: '#3D4451'
+            //                     },
+            //                     ticks: {
+            //                         backdropColor: '#FDFBF5',
+            //                         color: '#5A6372'
+            //                     },
+            //                     suggestedMin: 0,
+            //                     suggestedMax: 10
+            //                 }
+            //             },
+            //             plugins: {
+            //                 legend: {
+            //                     labels: {
+            //                         color: '#3D4451',
+            //                         font: {
+            //                             size: 16,
+            //                             family: "'Noto Sans SC', sans-serif"
+            //                         }
+            //                     }
+            //                 }
+            //             }
+            //         }
+            //     });
+            // }
+        });
+    </script>
+</body>
+</html>
